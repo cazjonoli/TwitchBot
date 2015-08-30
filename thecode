@@ -1,0 +1,433 @@
+on *:LOGON:*:{  
+  raw CAP REQ :twitch.tv/membership
+  raw CAP REQ :twitch.tv/commands
+}
+
+on *:TEXT:!devcmd:#deathcruiser: {
+  if ($nick == cazjonoli) {
+    msg $chan Dev Cmds: !getusers;gets all viewers in chat, !fixpot [amount];if some asshole has fucked up the betting -.-, !
+  }
+  msg $chan You're not a Dev GTFO KappaPride
+}
+
+on *:TEXT:!reload:#deathcruiser: {
+  if($nick == cazjonoli || $nick == deathcruiser) {
+    raw CAP REQ :twitch.tv/membership
+    raw CAP REQ :twitch.tv/commands
+    msg $chan No more ammo! Kappa
+  }
+}
+
+on *:TEXT:!todo:#: { msg $chan TODO List: Riddle minigame, Better betting,  }
+
+on *:TEXT:!botname:#: { msg $chan The name of the bot was invented by Deathcruiser, i dont know if you cared but now you know Kappa }
+
+on *:TEXT:!commands:#deathcruiser: { msg $chan Commands: !points, !top [number], !rank, !twitter, !steam, !info, !minigames, !bet <amount>, !givemod, !givepoints <user> [amount], !botname }
+on *:TEXT:!minigames:#deathcruiser: { msg $chan Minigames: !gamble(kind of done) }
+on *:TEXT:!gamble:#deathcruiser: { msg $chan Gamble Minigame: To bet points do; !bet <amount> and then wait for a mod to !roll }
+on *:TEXT:!modcmds:#deathcruiser: {
+  if ($nick isOp #) { 
+    msg $chan Mod Commands: !addquote <quote>, !points <add|remove> <user> [number], !giveall [amount] to give all viewers points, !close to force close the betting, !roll to roll the betting, !checkpoints <user> to check the user's points 
+    return
+  }
+  if ((%floodCMD) || ($($+(%,floodCMD.,$nick),2))) { return }
+  set -u5 %floodCMD On
+  set -u10 %floodCMD. $+ $nick On
+  msg $chan Read the name of the command -.-
+}
+on *:TEXT:!raffle:#deathcruiser: { msg $chan Im sorry but this commands doesn't work yet :/ }
+
+on *:TEXT:!happybday *:#: { msg $chan HAPPY BIRTHDAY $2 FeelsBirthdayMan }
+
+on *:TEXT:!speedruns:#: { msg $chan Outlast: 1h 31min 23sec }
+
+on *:TEXT:hi:#: { 
+  if ((%floodGREETING) || ($($+(%,floodGREETING.,$nick),2))) { return }
+  set -u3600 %floodGREETING. $+ $nick On
+  msg $chan Hi $nick :D / 
+}
+on *:TEXT:hey:#: { 
+  if ((%floodGREETING) || ($($+(%,floodGREETING.,$nick),2))) { return }
+  set -u3600 %floodGREETING. $+ $nick On
+  msg $chan Hey $nick :D / 
+}
+on *:TEXT:hello:#: { 
+  if ((%floodGREETING) || ($($+(%,floodGREETING.,$nick),2))) { return }
+  set -u3600 %floodGREETING. $+ $nick On
+  msg $chan Hello $nick :D / 
+}
+
+on *:TEXT:!givemod:#: { msg $chan Don't ask for mod, Death will give it to whoever he wants, thank you :) }
+on *:TEXT:*sleep*:#: { msg $chan Sleep is for the weak Kappa }
+on *:TEXT:!smoffsarn:#deathcruiser: { msg $chan Smoffsarn likes to talk to himself KappaPride }
+on *:TEXT:!deathcruiser:#deathcruiser: { msg $chan Who is that o.0? }
+on *:TEXT:!cazjonoli:#deathcruiser: { msg $chan cazjonoli is the weirdest person EU! Kappa }
+on *:TEXT:!steam:#deathcruiser: { msg $chan $nick , Death's steam is: http://steamcommunity.com/id/deathcruiser/ :) }
+on *:TEXT:!rank:#deathcruiser: { msg $chan $nick , Death's CS:GO rank is: Legendary Eagle }
+on *:TEXT:!twitter:#deathcruiser: { msg $chan $nick , Death's twitter: https://twitter.com/_Deathcruiser_ }
+on *:TEXT:*illuminati*:#: { msg $chan Illuminati confirmed deIlluminati }
+on *:TEXT:!info:#deathcruiser: { msg $chan Deathcruiser is an Oliver from Vaasa, Finland. }
+
+on *:TEXT:!addquote *:#deathcruiser: {
+  if ($nick !isop #) { return }
+  write quotes.txt /me $2- $+
+  msg $chan Added Quote: $2-
+}
+on *:TEXT:!quote:#deathcruiser: {
+  if ((%floodQUOTE) || ($($+(%,floodQUOTE.,$nick),2))) { return }
+  set -u2 %floodQUOTE On
+  set -u5 %floodQUOTE. $+ $nick On
+  msg $chan $read(quotes.txt)
+}
+
+on *:TEXT:!modcheck:#deathcruiser: {
+  if ($nick !isOp #) {
+    msg $chan $nick you are not a mod or admin
+    return
+  }
+  msg $chan You are a mod or admin
+}
+
+on *:TEXT:!getusers:#deathcruiser: {
+  if ($nick == cazjonoli) {
+    var %useramount = $nick(#,0)
+    var %n = 1
+    var %user = $nick(#,%n)
+    msg $chan There are %useramount viewers:
+    while (%n <= %useramount) {
+      %user = $nick(#,%n)
+      msg $chan %user 
+      %n = %n + 1
+    }
+    return
+  }
+  msg $chan This is a cazjonoli command only KappaPride
+}
+
+
+
+
+on *:TEXT:!giveall *:#deathcruiser: {
+  if ($nick isOp # || $nick == cazjonoli) {
+    var %useramount = $nick(#,0)
+    var %users = $nick(#,%n)
+    var %n = 1
+    var %pointsAdd = $2
+    var %topic = $+($chan,.,%users)
+    var %theusers = $readini(Points.ini,%topic,Points)
+    var %gived = %theusers + %pointsAdd
+    while (%n <= %useramount) {
+      %users = $nick(#,%n)
+      %topic = $+($chan,.,%users)
+      %theusers = $readini(Points.ini,%topic,Points)
+      %gived = %theusers + %pointsAdd
+      writeini -n Points.ini %topic Points %gived
+      %n = %n + 1
+    }
+    msg $chan /me %pointsAdd points has been given to everyone in the chat.
+    return
+  }
+  msg $chan $nick ,this is a mod command only.
+}
+
+
+
+
+on *:TEXT:!givepoints *:#deathcruiser: {
+  if ($nick != $2) {
+    msg $chan You can't give points to yourself.
+    return
+  }
+  if ($round($3,0) == $3) { 
+    msg $chan You can only give whole points.
+    return 
+  }
+  if ($3 < 1) { 
+    msg $chan $nick ,the minimum you can give is 1 point.
+    return
+  }
+  if ($3 !isnum) {
+    msg $chan Only numbers, pl0x Kappa
+    return
+  }
+  if ($3 > 100000) {
+    msg $chan $nick ,the max amount of points you can give to someone is 100k.
+    return
+  }
+
+  var %pointAmount = $3
+  var %topicOne = $+(#,.,$nick)
+  var %userOne = $readini(Points.ini,%topicOne,Points)
+  var %deleteOne = %userOne - %pointAmount
+  if (%deleteOne > 0) {
+    writeini -n Points.ini %topicOne Points %deleteOne
+    msg $chan $nick gave $2 %pointAmount of his points.
+  }
+  if (%deleteOne < 0) {
+    msg $chan Sorry $nick you don't have enough points to give $2 %pointAmount points!
+    return
+  }
+  var %topicTwo = $+(#,.,$2)
+  var %addTwo = $readini(Points.ini,%topicTwo,Points)
+  var %givedTwo = %addTwo + %pointAmount
+  writeini -n Points.ini %topicTwo Points %givedTwo
+  return
+}
+
+
+
+
+
+alias -l addPoints {
+  if ($1 !isnum) { echo 2 -st $1 is not a number. It needs to be a number. | halt }
+  var %topic $+($chan,.,$nick)
+  var %points $calc($readini(Points.ini,%topic,Points) + $1)
+  writeini -n Points.ini %topic Points %points
+  return %points
+}
+alias -l lookUpPoints {
+  var %topic $+($chan,.,$nick)
+  var %points $readini(Points.ini,%topic,Points)
+  return %points
+}
+alias doaddpoints {
+  if ($3 !isnum) { echo 2 -st $3 is not a number. It needs to be a number. | halt }
+  var %topic $+($1,.,$2)
+  var %points $calc($readini(Points.ini,%topic,Points) + $3)
+  writeini -n Points.ini %topic Points %points
+  echo -a Added points for %topic
+}
+alias dorempoints {
+  var %topic $+($1,.,$2)
+  remini -n Points.ini %topic Points
+  echo -a Removed points for %topic
+}
+
+on $*:text:/!points (add|remove)/Si:#:{ 
+  if ($nick isOp # || $nick == cazjonoli) {
+    if ($0 < 3) { msg # Insufficient parameters: Use !points <add|remove> <user> [number] | return }
+    writeini -n Points.ini $+(#,.,$3) Points $calc($readini(Points.ini,$+(#,.,$3),Points) $iif($2 == add,+,-) $iif($4 isnum,$4,1))
+    { msg $chan $3 now has $readini(Points.ini,$+(#,.,$3),Points) total points. }
+  }
+  else { msg $chan This command is only available to moderators. }
+}
+on !*:join:#:{
+  $+(.timerpoints.,#,.,$nick) 0 60 add.pts $+(#,.,$nick)
+  add.pts $+(#,.,$nick)
+}
+on !*:part:#:$+(.timerpoints.,#,.,$nick) off
+alias -l add.pts {
+  writeini -n Points.ini $1 Points $calc($readini(Points.ini,$1,Points) + 1)
+}
+
+
+on *:text:!points:#: {
+  if ((%floodpoints) || ($($+(%,floodpoints.,$nick),2))) { return }
+  set -u30 %floodpoints. $+ $nick On 
+  msg # $nick has $readini(Points.ini,$+(#,.,$nick),Points) total points. 
+}
+
+on *:TEXT:!checkpoints *:#deathcruiser: {
+  if ($nick !isOp # && $nick != cazjonoli ) { 
+    if ((%floodpoints) || ($($+(%,floodpoints.,$nick),2))) { return }
+    set -u10 %floodpoints On
+    set -u30 %floodpoints. $+ $nick On 
+    msg $chan Im sorry $nick but this is a mod command only.
+    return
+  }
+  msg # $2 has $readini(Points.ini,$+(#,.,$2),Points) total points.
+}
+
+
+
+on *:TEXT:!fixpot *:#: {
+  if($nick == cazjonoli) {
+    set %allbetamount $2
+    msg $chan The pot has been set to %allbetamount
+    return
+  }
+  msg $chan This is a cazjonoli command only Kappa
+}
+
+on *:TEXT:!pot:#: {
+  if ((%floodpoints) || ($($+(%,floodpoints.,$nick),2))) { return }
+  set -u2 %floodpoints On
+  set -u5 %floodpoints. $+ $nick On
+  msg $chan The current pot is: %allbetamount points 
+}
+
+on *:TEXT:!bet &:#: {
+  if ((%floodBET) || ($($+(%,floodBET.,$nick),2))) { return }
+  set -u5 %floodBET. $+ $nick On
+  if (%betting == 1) { 
+    if ($round($2,0) == $2) {  
+      if ($2 > 100) {
+        msg $chan Sorry $nick but you can only bet up to 100 points.
+      }
+      if ($2 < 101) {
+        if ($2 <= 0) { 
+          msg $chan $nick , the minimum you can bet is 1 point.
+          return
+        }
+        var %i = 0
+        var %betamount = $2
+        var %topic = $+(#,.,$nick)
+        var %user = $readini(Points.ini,%topic,Points)
+        var %end = 1 * %betamount
+        var %delete = %user - %end
+        %allbetamount = %allbetamount + %betamount
+        if (%delete > 0) {
+          writeini -n Points.ini %topic Points %delete
+          while (%i < %betamount) {
+            write Bets.txt $nick
+            %i = %i + 1
+          }
+          msg $chan $nick has bet %betamount points.
+          return 
+        }
+        if (%delete < 0) {
+          msg $chan Sorry $nick you don't have enough points to bet %betamount points!
+          return
+        }
+      }
+    }
+    msg $chan You can only bet whole points.
+  }
+  if (%betting == 0) {
+    msg $chan Betting is currently OFF!
+  }
+}
+
+on *:TEXT:!open:#: {
+  if ($nick isOp # || $nick == cazjonoli) {
+    if (%betting == 0) {
+      msg $chan Betting is now ON!
+      set %betting 1
+      write -c Bets.txt
+    }
+  }
+}
+
+on *:TEXT:!close:#: {
+  if ($nick isOp # || $nick == cazjonoli) {
+    if (%betting == 1)  {
+      msg $chan Betting is now OFF!
+      set %betting 0
+      write -c Bets.txt
+    }
+  }
+}
+
+on *:TEXT:!roll:#: {
+  if ($nick isOp # || $nick == cazjonoli) {
+    if (%betting == 1) {
+      var %user = $read(Bets.txt, n)
+      msg $chan Points in the pot: %allbetamount
+      msg $chan WINNER IS NOW BEING ROLLED, GOOD LUCK!!
+      .timerOne 1 1 msg $chan /me 3!
+      .timerTwo 1 2 msg $chan /me 2!
+      .timerThree 1 3 msg $chan /me 1!
+      .timerFour 1 4 msg $chan AND THE WINNER IS: 
+      .timerFive 1 5 msg $chan 👍 KappaPride %user 👍 KappaPride
+
+      var %topic = $+(#,.,%user)
+      var %add = $readini(Points.ini,%topic,Points)
+      var %win = %add + %allbetamount
+      writeini -n Points.ini %topic Points %win
+
+      .timerSix 1 6 msg $chan %allbetamount points were added to %user 's points.
+      set %allbetamount 0
+      set %betting 1
+      write -c Bets.txt
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+on *:text:!top*:#: {
+  if ($1 != !top) return
+
+  if ($0 == 1) {
+    var %nbLoop = 5
+  }
+  elseif ($0 == 2) {
+    if ($2 isnum) {
+      if ($2 > 0 && $2 <= 10) {
+        var %nbLoop = $2
+      }
+      else {
+        msg $chan Wrong parameters.  Number must be between 1 and 10
+        return
+      }
+    }
+    else {
+      msg $chan Wrong parameters.  Use !top [number]
+      return
+    }
+  }
+  else {
+    msg $chan Wrong parameters.  Use !top [number]
+    return
+  }
+  var %i = 1
+  var %j = 1
+  var %channelLength = $calc($calc($len(#) + 1) * -1)
+  var %done = 0
+
+  while (%i <= %nbLoop) {
+    var %max [ $+ [ %i ] ] 0
+    var %name [ $+ [ %i ] ] unknown
+    inc %i
+  }
+  while (%j <= $ini(Points.ini,0)) {
+    var %section $ini(Points.ini,%j)
+    var %points = $readini(Points.ini,%section,Points)
+    var %fullname = $right(%section, %channelLength)
+
+    if ($count(%fullname, nightbot) == 0 && $count(%fullname, xanbot) == 0 && $count(%fullname, twitchranks) == 0 && $count(%fullname, moobot) == 0) {
+      var %x = %nbLoop    
+
+      while (%x >= 1) {
+        if (%points > %max [ $+ [ %x ] ] && %done == 0) {
+          var %y = 1
+          var %z = 2
+
+          while (%y <= %x) {
+            if (%y < %x) {
+              var %temp = %max [ $+ [ %z ] ]
+              var %temp2 = %name [ $+ [ %z ] ]
+              SET %max [ $+ [ %y ] ] %temp
+              SET %name [ $+ [ %y ] ] %temp2
+            }
+            else {
+              SET %max [ $+ [ %y ] ] %points
+              SET %name [ $+ [ %y ] ] %fullname
+            }
+            inc %y
+            inc %z
+          }
+          %done = 1
+        }
+        dec %x
+      }
+    }
+    %done = 0
+    inc %j
+  }
+  var %string = Top %nbLoop points:
+  var %i = 1 
+
+  while (%nbLoop >= 1) {
+    %string = %string $+ $+($chr(32),%i,$chr(46),$chr(32)) %name [ $+ [ %nbLoop ] ] $+($chr(32)) %max [ $+ [ %nbLoop ] ] points, 
+    dec %nbLoop
+    inc %i
+  }
+  msg $chan %string
+}
